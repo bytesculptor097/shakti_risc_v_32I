@@ -44,14 +44,16 @@ The SoC consists of the following primary components:
 ---
 
 ## 📦 Repository Contents
-shakti_risc_v_32I/
-├── rtl/ # RTL design files (Verilog)
-├── tb/ # Testbenches
-├── docs/ # Documentation and block diagram
-├── constraints/ # FPGA constraints (pin assignments, etc.)
-├── scripts/ # Simulation/build scripts
-├── README.md # Project overview and instructions
-└── LICENSE # License information
+shakti_vsdfpga/
+├── Shakthi_basic/
+├── bin/
+├── eclass_32bit/
+├── eclass_64bit/
+├── verilog 32 Bit I instructions/
+├── Makefile
+└── README.md
+
+---
 
 
 ## Project Overview
