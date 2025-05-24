@@ -2,7 +2,7 @@
 
 This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI E-Class** RISC-V processor core. The goal is to build a lightweight, functional RISC-V SoC suitable for small, resource-constrained FPGAs like the Lattice iCE40UP5K.
 
-The SoC architecture is derived and adapted from the original [vsdip/shakti_vsdfpga](https://github.com/vsdip/shakti_vsdfpga) repository, with a specific focus on **minimization**, **functional clarity**, and **educational utility**.
+
 
 ---
 
@@ -44,4 +44,77 @@ The SoC consists of the following primary components:
 ---
 
 ## 📦 Repository Contents
+shakti_risc_v_32I/
+├── rtl/ # RTL design files (Verilog)
+├── tb/ # Testbenches
+├── docs/ # Documentation and block diagram
+├── constraints/ # FPGA constraints (pin assignments, etc.)
+├── scripts/ # Simulation/build scripts
+├── README.md # Project overview and instructions
+└── LICENSE # License information
+
+
+## Project Overview
+
+This project aims to implement the Shakti 32I RISC-V soft core on the VSD FPGA board, which allows learners and developers to interact with a full RISC-V CPU in real-time. The 32I variant supports integer instructions only and is designed to be light-weight, making it suitable for academic and embedded applications.
+
+The system involves multiple modules working together:
+
+- **CPU Core:** The central Shakti RISC-V 32I core.
+- **Pipeline Stages:** Implement instruction fetch, decode, execute, memory, and writeback stages.
+- **ALU and CSR Unit:** Handle arithmetic and control flow.
+- **Register File:** Stores temporary data and registers.
+- **BRAM Modules:** Act as internal memory for program and data.
+- **FIFO & Sync Modules:** Help in communication and synchronization across modules.
+- **Clock/Reset Generator:** Drives and synchronizes the design.
+- **Boot Loader & Interfaces:** Initialize the CPU at power-on.
+
+---
+
+## System Block Diagram
+
+The following block diagram explains the architecture of the system implemented:
+
+![WhatsApp Image 2025-05-24 at 18 17 38_4615df3a](https://github.com/user-attachments/assets/09ad6826-0f43-4f4e-b1a6-d7f48e1d34ef)
+
+---
+
+## Working Principle
+
+The CPU core is initialized by the Boot Loader and Clock/Reset Generator. Once started, it begins fetching instructions from the BRAM, processing them through its pipeline. The ALU performs arithmetic operations while the Control Unit manages flow and CSR operations. Data transfer between memory and core is handled via BRAM modules and interfaces, synchronized properly using FIFO buffers.
+
+All components are driven by a global clock and reset system, ensuring synchronous and deterministic behavior suitable for FPGA-based prototyping.
+
+---
+
+## Key Features
+
+- ✅ Lightweight RISC-V 32I core
+- ✅ Pipeline architecture
+- ✅ Custom memory subsystem
+- ✅ FIFO and synchronization logic
+- ✅ Modular Verilog-based RTL structure
+- ✅ Synthesizable on VSD FPGA board
+
+---
+
+## Target Platform
+
+- FPGA Board: **VSD Squadon (Tang Nano 9K / iCE40 / Cyclone II)**
+- Toolchain: **Yosys, NextPNR, Quartus (for Cyclone)**
+
+---
+
+## Acknowledgments
+
+- This work is inspired and derived from [Shakti Processor Program](https://shakti.org.in/)
+- Special thanks to VSDOpen for FPGA tools and community guidance.
+
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
 
