@@ -205,7 +205,7 @@ Follow these steps in order. Each command is in its own code block so it can be 
    ```
 3. Build the FPGA bitstream
 
-   ``
+   ```
    make build
    ```
    
