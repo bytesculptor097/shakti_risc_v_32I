@@ -1,4 +1,4 @@
-# 🔧 Minimal RISC-V SoC using SHAKTI E-Class Core on Lattice FPGA
+#  Minimal RISC-V SoC using SHAKTI E-Class Core on Lattice FPGA
 
 This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI E-Class** RISC-V processor core. The goal is to build a lightweight, functional RISC-V SoC suitable for small, resource-constrained FPGAs like the Lattice iCE40UP5K.The Shakti RISC‑V 32I Core on VSD FPGA project brings together two vibrant open‑source ecosystems—India’s SHAKTI processor family and the VSDOpen FPGA community—to create a low‑cost, hands‑on RISC‑V SoC platform. At its heart lies the SHAKTI E‑Class RV32I core, a clean‑slate, five‑stage in‑order pipelined CPU design implementing the full RV32I integer instruction set. By targeting the affordable VSDSquadron FPGA mini board (Lattice iCE40 / Tang Nano 9K), this repository enables students and hobbyists to:  
 1. **Study** a real-world RISC‑V microarchitecture end‑to‑end.  
@@ -10,7 +10,7 @@ This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI
 ---
 
 
-## 🧠 Project Objective
+##  Project Objective
 
 The objective of this project is to:
 
@@ -22,7 +22,7 @@ The objective of this project is to:
 
 ---
 
-## 🧩 SoC Architecture
+##  SoC Architecture
 
 The SoC consists of the following primary components:
 
@@ -68,7 +68,6 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 | Component Name                   | Type                             | Function                                                                                 |
 |----------------------------------|----------------------------------|------------------------------------------------------------------------------------------|
 | **eclass**                       | CPU Core                         | Executes RV32I instructions; interfaces with memory/peripherals via AXI4‑Lite.           |
-| **clint (CLINT)**                | Timer/Interrupt Controller       | Manages machine‑mode timers (`mtime`, `mtimecmp`) and software interrupts (`MSIP`).     |
 | **uart_user_ifc**                | UART (Serial Port)               | Handles serial TX/RX, with FIFOs for buffering.                                         |
 | **fabric (Interconnect)**        | AXI4‑Lite Crossbar               | Routes read/write requests between CPU, memory, and peripherals.                         |
 | **main_mem_master**              | Memory Interface                 | AXI4‑Lite master for main data RAM.                                                     |
@@ -85,7 +84,7 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-## 🎨 Design Style Explanation
+##  Design Style Explanation
 
 - **Modular & Hierarchical**  
   - Each block under `rtl/` (e.g., ALU, CSR, Pipeline, BRAM, FIFO).  
@@ -191,18 +190,18 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-## ⭐ Key Features
+##  Key Features
 
-- ✅ Lightweight SHAKTI RV32I 5‑stage pipelined core  
-- ✅ Memory‑mapped UART for serial I/O  
-- ✅ On‑chip BRAM for firmware storage  
-- ✅ AXI4‑Lite interconnect  
-- ✅ Modular Verilog RTL  
-- ✅ Fits low‑cost Lattice FPGA  
+-  Lightweight SHAKTI RV32I 5‑stage pipelined core  
+-  Memory‑mapped UART for serial I/O  
+-  On‑chip BRAM for firmware storage  
+-  AXI4‑Lite interconnect  
+-  Modular Verilog RTL  
+-  Fits low‑cost Lattice FPGA  
 
 ---
 
-## 🎯 Target Platform
+##  Target Platform
 
 - **FPGA Board:** VSDSquadron FPGA mini (Lattice iCE40 / Tang Nano 9K)  
 - **Toolchain:** Yosys + NextPNR (iCE40)   
@@ -210,7 +209,7 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Core sourced from the [SHAKTI Processor Program](https://shakti.org.in/) by IIT‑Madras.   
 - Thanks to the VSDOpen community for FPGA tooling guidance.
@@ -218,7 +217,7 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-## 📜 License
+##  License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
