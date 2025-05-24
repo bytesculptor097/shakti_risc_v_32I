@@ -190,24 +190,6 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
----
-
-## 🐞 Reproduction Steps
-
-To help trace and reproduce the UART/LED issue, follow these exact steps:
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Skandakm29/shakti_risc_v_32I.git
-
-# 2. Enter the shakthi_basic directory
-cd shakti_risc_v_32I/shakthi_basic
-
-# 3. Build the bitstream
-make build
-
-# 4. Flash the FPGA
-make flash
 
 
 ##  Key Features
