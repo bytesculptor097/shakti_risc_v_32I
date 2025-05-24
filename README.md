@@ -90,7 +90,7 @@ All components are driven by a global clock and reset system, ensuring synchrono
 
 ## Target Platform
 
-- FPGA Board: **VSD Squadon (Tang Nano 9K / iCE40 / Cyclone II)**
+- FPGA Board: **VSD Squadon FPGA mini**
 - Toolchain: **Yosys, NextPNR**
 
 ---
