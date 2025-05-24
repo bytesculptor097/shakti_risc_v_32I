@@ -198,23 +198,27 @@ Follow these steps in order. Each command is in its own code block so it can be 
    ```bash
    git clone https://github.com/Skandakm29/shakti_risc_v_32I.git
 
+This command downloads a full copy of this repository (all files, history, and folders) into a new local folder named `shakti_risc_v_32I`.
+
 2. **Change into the shakthi_basic directory**
 
    ```
    cd shakti_risc_v_32I/shakthi_basic
    ```
+   
 3. Build the FPGA bitstream
 
    ```
    make build
    ```
+This command synthesizes your Verilog into a netlist, places & routes it for the target FPGA, and produces the final bitstream (`.bin`) along with intermediate files (e.g. `.json`, `.asc`) in the `build/` directory.
    
 4. Flash the board
 
    ```
    make flash
    ```
-
+This command takes the generated FPGA bitstream (`mkSoc.bin`) from the `build/` directory and programs it onto the connected FPGA board over USB/JTAG, so your design actually runs on the hardware.
    
 ##  Key Features
 
