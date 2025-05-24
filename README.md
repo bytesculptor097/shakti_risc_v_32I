@@ -203,9 +203,19 @@ Follow these steps in order. Each command is in its own code block so it can be 
    ```
    cd shakti_risc_v_32I/shakthi_basic
    ```
+3. Build the FPGA bitstream
+
+   ``
+   make build
+   ```
    
+4. Flash the board
 
+   ```
+   make flash
+   ```
 
+   
 ##  Key Features
 
 -  Lightweight SHAKTI RV32I 5‑stage pipelined core  
