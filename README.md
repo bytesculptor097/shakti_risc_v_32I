@@ -43,18 +43,6 @@ The SoC consists of the following primary components:
 
 ---
 
-## 📦 Repository Contents
-shakti_vsdfpga/
-├── Shakthi_basic/
-├── bin/
-├── eclass_32bit/
-├── eclass_64bit/
-├── verilog 32 Bit I instructions/
-├── Makefile
-└── README.md
-
----
-
 
 ## Project Overview
 
