@@ -44,87 +44,6 @@ The SoC consists of the following primary components:
 
 ---
 
-## 🧩 System Components
-
-The top‑level `mkSoc` module integrates:
-
-1. **Clock/Reset Generation**  
-   - Generates global clock (`clk_i`) and synchronized active‑low reset (`rst_n_i`) for all sub‑modules.
-
-2. **Boot Loader & Interfaces**  
-   - Initializes the program counter and memory map on power‑up.  
-   - Provides UART and JTAG interfaces for firmware download and debugging.
-
-3. **Shakti RISC‑V 32I Core**  
-   - 5‑stage pipeline (IF, ID, EX, MEM, WB).  
-   - Interfaces to instruction/data memory via AXI4‑Lite.
-
-4. **Pipeline Stages**  
-   - **IF**: Instruction Fetch from BRAM.  
-   - **ID**: Decode & register fetch.  
-   - **EX**: Execute via ALU/CSR.  
-   - **MEM**: Data memory access.  
-   - **WB**: Writeback to Register File.
-
-5. **ALU & Control/CSR Unit**  
-   - Arithmetic, logic, shift operations and CSR handling.
-
-6. **Register File**  
-   - 32 × 32‑bit registers with two read ports and one write port.
-
-7. **BRAM Modules**  
-   - Dual‑port block RAM for instructions and data.
-
-8. **FIFO & Sync Modules**  
-   - Handles clock‑domain crossing and buffering.
-
----
-
-## 🎨 Design Style Explanation
-
-- **Modular & Hierarchical**  
-  - Each block (ALU, CSR, Pipeline, BRAM, FIFO) in its own RTL file under `rtl/`.  
-  - Top‑level wrapper `mkSoc.v` wires sub‑modules.
-
-- **Synchronous Reset**  
-  - Active‑low `rst_n_i`, synchronized to `clk_i`.
-
-- **Parameterization**  
-  - Widths, depths, and addresses parameterized for reuse.
-
-- **Signal Naming**  
-  - Inputs: `<name>_i`  
-  - Outputs: `<name>_o`  
-  - Internals: lowercase with underscores.
-
-- **Clock‑Domain Crossing**  
-  - FIFOs use Gray‑coded pointers for safe pointer synchronization.
-
-- **Comments & Documentation**  
-  - Module headers list ports, parameters, and descriptions.  
-  - Inline comments on non‑obvious logic.
-
----
-
-## 🔌 I/O Signals of `mkSoc`
-
-| Signal Name       | Dir | Width | Description                                      |
-|-------------------|:---:|:-----:|--------------------------------------------------|
-| `clk_i`           | in  | 1     | Global system clock                              |
-| `rst_n_i`         | in  | 1     | Active‑low synchronous reset                     |
-| `boot_addr_i`     | in  | 32    | Boot start address loaded at power‑up            |
-| `instr_addr_o`    | out | 32    | Address bus for instruction BRAM                 |
-| `instr_data_i`    | in  | 32    | Data bus from instruction BRAM                   |
-| `data_addr_o`     | out | 32    | Address bus for data BRAM                        |
-| `data_wdata_o`    | out | 32    | Write‑data bus to data BRAM                      |
-| `data_rdata_i`    | in  | 32    | Read‑data bus from data BRAM                     |
-| `data_we_o`       | out | 4     | Byte‑enable signals for data writes              |
-| `uart_tx_o`       | out | 1     | UART transmit line                               |
-| `uart_rx_i`       | in  | 1     | UART receive line                                |
-| `gpio_leds_o`     | out | 8     | On‑board LEDs (user‑configurable patterns)       |
-| `gpio_switches_i` | in  | 8     | On‑board switch inputs                           |
-
----
 
 ## 🚀 Project Overview
 
@@ -139,6 +58,92 @@ This project implements the Shakti 32I soft core on the VSD FPGA board, enabling
 - FIFO & Sync Units  
 - Clock/Reset Generator  
 - Boot Loader & Interfaces  
+
+---
+
+## 🧩 System Components
+
+| Component Name                   | Type                             | Function                                                                                 |
+|----------------------------------|----------------------------------|------------------------------------------------------------------------------------------|
+| **eclass**                       | CPU Core                         | Executes RV32I instructions; interfaces with memory/peripherals via AXI4‑Lite.           |
+| **clint (CLINT)**                | Timer/Interrupt Controller       | Manages machine‑mode timers (`mtime`, `mtimecmp`) and software interrupts (`MSIP`).     |
+| **uart_user_ifc**                | UART (Serial Port)               | Handles serial TX/RX, with FIFOs for buffering.                                         |
+| **fabric (Interconnect)**        | AXI4‑Lite Crossbar               | Routes read/write requests between CPU, memory, and peripherals.                         |
+| **main_mem_master**              | Memory Interface                 | AXI4‑Lite master for main data RAM.                                                     |
+| **boot_mem_master**              | Memory Interface                 | AXI4‑Lite master for boot ROM/flash.                                                     |
+| **err_slave**                    | Error Handler                    | Catches invalid memory accesses (for debugging).                                        |
+| **signature**                    | Simulation Monitor               | Ends simulation when tests complete (`mv_end_simulation`).                              |
+| **clint_s_xactor**               | AXI4‑Lite Transaction Handler    | Manages AXI reads/writes for the CLINT.                                                 |
+| **uart_s_xactor**                | AXI4‑Lite Transaction Handler    | Manages AXI reads/writes for the UART.                                                  |
+| **fabric_xactors_from_masters**  | AXI4‑Lite Master Interfaces      | Buffers requests from CPU masters (instr, data, debug).                                 |
+| **fabric_xactors_to_slaves**     | AXI4‑Lite Slave Interfaces       | Buffers requests to slaves (main mem, boot mem, CLINT, UART, err_slave, signature).     |
+| **fabric_v_f_rd_mis / …_wr**     | Routing FIFOs                    | Track in‑flight AXI read/write transactions.                                             |
+| **uart_baudGen**                 | Baud Rate Generator              | Generates baud clock for UART.                                                          |
+| **uart_fifoRecv / fifoXmit**     | FIFO Buffers                     | Buffers incoming/outgoing UART data.                                                    |
+
+---
+
+## 🎨 Design Style Explanation
+
+- **Modular & Hierarchical**  
+  - Each block under `rtl/` (e.g., ALU, CSR, Pipeline, BRAM, FIFO).  
+  - Top‑level `mkSoc.v` instantiates sub‑modules.
+
+- **Synchronous Reset**  
+  - Single active‑low reset (`rst_n_i`), synchronized to `clk_i`.
+
+- **Parameterization**  
+  - Data widths, address widths, FIFO depths are parameters.
+
+- **Signal Naming**  
+  - Inputs: `<name>_i`  
+  - Outputs: `<name>_o`  
+  - Internals: snake_case.
+
+- **Clock‑Domain Crossing**  
+  - Gray‑coded pointers in FIFOs for safe sync.
+
+- **Documentation**  
+  - Module headers list ports, parameters, brief description.  
+  - Inline comments for complex logic.
+
+---
+
+## 🔌 I/O Signals of `mkSoc`
+
+| Signal Name            | Direction | Width | Meaning                                          | Usage                                                        |
+|------------------------|-----------|:-----:|--------------------------------------------------|--------------------------------------------------------------|
+| **Clock/Reset Signals**                                                      |
+| `CLK_tck_clk`          | in        | 1     | JTAG test clock (unused normally)                | Tie to 0 if unused.                                          |
+| `RST_N_trst`           | in        | 1     | JTAG test reset (unused normally)                | Tie to 0 if unused.                                          |
+| `CLK`                  | in        | 1     | Main system clock                                | Connect to clock source.                                     |
+| `RST_N`                | in        | 1     | Active‑low system reset                          | Assert (low) to reset.                                       |
+| **Dump Interface**                                                           |
+| `EN_io_dump_get`       | in        | 1     | Enable signal to read system state               | Assert to trigger state dump (debug).                        |
+| `io_dump_get`          | out       | 167   | System state data (registers, FIFOs, etc.)       | Capture when `EN_io_dump_get` is asserted.                   |
+| `RDY_io_dump_get`      | out       | 1     | Indicates `io_dump_get` is ready                 | Check before asserting `EN_io_dump_get`.                      |
+| **Main Memory AXI Master**                                                   |
+| `main_mem_master_awvalid` | out    | 1     | AXI write address valid                          | Indicates valid write address.                               |
+| `main_mem_master_awaddr`  | out    | 32    | AXI write address                                | Connect to RAM controller.                                   |
+| `main_mem_master_awprot`  | out    | 3     | AXI write protection                             | Set security/privilege level.                                |
+| `main_mem_master_awsize`  | out    | 3     | AXI write burst size                             | e.g. `2'b011` for 8‑byte bursts.                             |
+| `main_mem_master_wvalid`  | out    | 1     | AXI write data valid                             | Indicates valid write data.                                  |
+| `main_mem_master_wdata`   | out    | 64    | AXI write data                                   | Data to write.                                               |
+| `main_mem_master_wstrb`   | out    | 8     | AXI write strobe                                 | Byte‑enable for `wdata`.                                     |
+| `main_mem_master_bready`  | out    | 1     | AXI write response ready                         | Accept write responses.                                      |
+| `main_mem_master_arvalid` | out    | 1     | AXI read address valid                           | Indicates valid read address.                                |
+| `main_mem_master_araddr`  | out    | 32    | AXI read address                                 | Connect to RAM controller.                                   |
+| `main_mem_master_arprot`  | out    | 3     | AXI read protection                              | Set security/privilege level.                                |
+| `main_mem_master_arsize`  | out    | 3     | AXI read burst size                              | e.g. `2'b011` for 8‑byte bursts.                             |
+| `main_mem_master_rready`  | out    | 1     | AXI read data ready                              | Accept read data.                                            |
+| **Boot Memory AXI Master**                                                   |
+| `boot_mem_master_*`     | out       | —     | AXI signals for boot memory (same as main_mem)   | Connect to ROM/flash controller.                             |
+| **UART**                                                                     |
+| `uart_io_SIN`          | in        | 1     | UART serial input                                | Connect to external RX.                                      |
+| `uart_io_SOUT`         | out       | 1     | UART serial output                               | Connect to external TX.                                      |
+| **Simulation Control**                                                       |
+| `mv_end_simulation`    | out       | 1     | End‑of‑simulation signal                         | Assert when tests complete.                                  |
+| `RDY_mv_end_simulation`| out       | 1     | Indicates `mv_end_simulation` is valid           | Check before reading.                                        |
 
 ---
 
