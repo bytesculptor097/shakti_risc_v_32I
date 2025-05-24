@@ -1,11 +1,13 @@
 # 🔧 Minimal RISC-V SoC using SHAKTI E-Class Core on Lattice FPGA
 
-This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI E-Class** RISC-V processor core. The goal is to build a lightweight, functional RISC-V SoC suitable for small, resource-constrained FPGAs like the Lattice iCE40UP5K.
-
+This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI E-Class** RISC-V processor core. The goal is to build a lightweight, functional RISC-V SoC suitable for small, resource-constrained FPGAs like the Lattice iCE40UP5K.The Shakti RISC‑V 32I Core on VSD FPGA project brings together two vibrant open‑source ecosystems—India’s SHAKTI processor family and the VSDOpen FPGA community—to create a low‑cost, hands‑on RISC‑V SoC platform. At its heart lies the SHAKTI E‑Class RV32I core, a clean‑slate, five‑stage in‑order pipelined CPU design implementing the full RV32I integer instruction set. By targeting the affordable VSDSquadron FPGA mini board (Lattice iCE40 / Tang Nano 9K), this repository enables students and hobbyists to:  
+1. **Study** a real-world RISC‑V microarchitecture end‑to‑end.  
+2. **Experiment** with instruction memory, AXI4‑Lite interconnects, and a simple UART peripheral.  
+3. **Deploy** compiled firmware on actual hardware, observing live UART output.  
+4. **Extend** the design—adding peripherals, modifying the pipeline, or porting to other FPGA families—all using open‑source tools like Yosys, NextPNR, and Quartus.
 
 
 ---
-
 
 
 ## 🧠 Project Objective
@@ -47,17 +49,17 @@ The SoC consists of the following primary components:
 
 ## 🚀 Project Overview
 
-This project implements the Shakti 32I soft core on the VSD FPGA board, enabling real‑time interaction with a full RISC‑V CPU. The integer‑only variant is lightweight and ideal for teaching and embedded applications.
+This project implements a fully functional, synthesizable RISC‑V system-on-chip (SoC) around SHAKTI’s E‑Class CPU core. The design is organized into clear, reusable modules:
 
-**Modules:**  
-- CPU Core  
-- Pipeline Stages (IF → ID → EX → MEM → WB)  
-- ALU & CSR Unit  
-- Register File  
-- BRAM Modules  
-- FIFO & Sync Units  
-- Clock/Reset Generator  
-- Boot Loader & Interfaces  
+- **CPU Core (`eclass`)**: A parameterized, five‑stage pipeline (IF → ID → EX → MEM → WB) with separate instruction and data buses.  
+- **Instruction Memory (`BRAM`)**: On‑chip block RAM preloaded with `firmware.bin`. The fetch unit reads instructions synchronously, eliminating external memory dependencies.  
+- **AXI4‑Lite Interconnect (`fabric`)**: A lightweight crossbar that arbitrates access between the CPU’s instruction fetch, data load/store, and memory‑mapped peripherals.  
+- **UART Peripheral (`uart_user_ifc`)**: A simple, register‑based UART transmitter/receiver mapped at address `0x9000_0000`, supporting basic TX buffering via FIFOs.  
+- **Clock/Reset Generation**: A centralized module that derives the global clock and synchronous reset (active‑low) signals for all subunits.  
+- **Boot Loader & Interfaces**: A minimal boot module that initializes the program counter and offers JTAG/UART download paths for firmware.  
+- **Debug & Simulation Hooks**: Dump interfaces (`io_dump_get`) and simulation monitors (`mv_end_simulation`) to facilitate post‑simulation state inspection and automated testbench control.
+
+By modularizing each function—pipeline stages, ALU, CSR, register file, memory interfaces, FIFOs—this repository becomes an ideal learning sandbox. Newcomers can trace a single instruction’s journey through fetch, decode, execute, memory, and write‑back stages, while advanced users can experiment with custom peripherals or performance optimizations. 
 
 ---
 
@@ -156,20 +158,36 @@ This project implements the Shakti 32I soft core on the VSD FPGA board, enabling
 
 ## ⚙️ Working Principle
 
-1. **Initialization**  
-   - `Clock/Reset Generator` drives `clk_i`/`rst_n_i`.  
-   - `Boot Loader` sets the PC to start of instruction BRAM.
+1. **Power‑On & Reset**  
+   - Upon power‑up, the **Clock/Reset Generator** asserts a synchronous, active‑low reset (`RST_N`) for a few clock cycles, ensuring all registers and FIFOs initialize to known states.  
+   - The **Boot Loader** then deasserts reset and programs the CPU’s Program Counter (PC) with the start address of the instruction BRAM.
 
-2. **Fetch & Execute**  
-   - CPU fetches from BRAM, decodes, executes via ALU/CSR.  
-   - Data loads/stores via AXI4‑Lite.
+2. **Instruction Fetch (IF)**  
+   - The CPU core drives the AXI4‑Lite instruction bus: `awvalid`/`arvalid` signals, `awaddr`/`araddr` pointers, and `rready` handshakes.  
+   - The BRAM module returns 32‑bit instructions synchronously on each clock, feeding them into the IF stage FIFO.
 
-3. **UART Output**  
-   - Firmware writes to UART TX register at `0x9000_0000`.  
-   - UART serializes and transmits to host PC.
+3. **Instruction Decode (ID)**  
+   - The fetched instruction is unpacked: opcode, register addresses, immediate fields.  
+   - Two register‑read ports access the **Register File**, providing operand data for the execution stage.  
+   - Control signals (branch, ALU opcode, CSR flags) are generated.
 
-4. **Synchronous Operation**  
-   - Single clock domain for all modules.
+4. **Execute (EX)**  
+   - The **ALU** performs arithmetic/logic operations (ADD, SUB, AND, OR, SHIFT, etc.), while the **CSR Unit** handles system and control‑status register instructions.  
+   - Branch decisions are evaluated; if a branch is taken, the PC is updated accordingly via the interconnect.
+
+5. **Memory Access (MEM)**  
+   - For loads/stores, the data bus issues AXI4‑Lite read (`ar*`) or write (`aw*`, `w*`) transactions to the BRAM or peripherals.  
+   - **Data FIFOs** ensure clock‑domain crossing safety and decouple back‑to‑back transactions.
+
+6. **Write‑Back (WB)**  
+   - Results from the ALU or loaded data are written back into the **Register File** on the rising edge of `CLK`.  
+   - The core then fetches the next instruction, restarting the pipeline.
+
+7. **UART I/O & Debug**  
+   - Firmware writes ASCII values to the UART’s TX register; the **UART Peripheral** serializes and emits bits at the configured baud rate.  
+   - Optional dump interface (`EN_io_dump_get` / `io_dump_get`) can snapshot internal state (registers, FIFOs) for offline analysis.  
+   - A simulation monitor (`mv_end_simulation`) flags testbench completion, enabling fully automated CI integration.
+
 
 ---
 
