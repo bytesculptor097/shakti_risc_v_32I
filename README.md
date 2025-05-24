@@ -47,7 +47,7 @@ The SoC consists of the following primary components:
 ---
 
 
-## 🚀 Project Overview
+##  Project Overview
 
 This project implements a fully functional, synthesizable RISC‑V system-on-chip (SoC) around SHAKTI’s E‑Class CPU core. The design is organized into clear, reusable modules:
 
@@ -63,7 +63,7 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-## 🧩 System Components
+##  System Components
 
 | Component Name                   | Type                             | Function                                                                                 |
 |----------------------------------|----------------------------------|------------------------------------------------------------------------------------------|
@@ -110,7 +110,7 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-## 🔌 I/O Signals of `mkSoc`
+##  I/O Signals of `mkSoc`
 
 | Signal Name            | Direction | Width | Meaning                                          | Usage                                                        |
 |------------------------|-----------|:-----:|--------------------------------------------------|--------------------------------------------------------------|
@@ -155,7 +155,7 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-## ⚙️ Working Principle
+## ⚙ Working Principle
 
 1. **Power‑On & Reset**  
    - Upon power‑up, the **Clock/Reset Generator** asserts a synchronous, active‑low reset (`RST_N`) for a few clock cycles, ensuring all registers and FIFOs initialize to known states.  
