@@ -1,81 +1,47 @@
+# 🔧 Minimal RISC-V SoC using SHAKTI E-Class Core on Lattice FPGA
 
+This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI E-Class** RISC-V processor core. The goal is to build a lightweight, functional RISC-V SoC suitable for small, resource-constrained FPGAs like the Lattice iCE40UP5K.
 
-#  SHAKTI E-Class RISC-V Minimal SoC (Lattice FPGA)
+The SoC architecture is derived and adapted from the original [vsdip/shakti_vsdfpga](https://github.com/vsdip/shakti_vsdfpga) repository, with a specific focus on **minimization**, **functional clarity**, and **educational utility**.
 
-This repo shows our journey of optimizing the SHAKTI E-Class RISC-V core and building a minimal SoC for small Lattice FPGAs.
+---
 
-* * *
+## 🧠 Project Objective
 
-##  Project Summary
+The objective of this project is to:
 
-Started with the full SHAKTI core, stripped it down, and built a clean SoC that runs on low-resource FPGAs.
+- Implement a working 32-bit RISC-V RV32I processor using the SHAKTI E-Class core.
+- Integrate basic memory and UART I/O within a simplified SoC fabric.
+- Demonstrate UART output from compiled firmware running on the SHAKTI core.
+- Fit the entire SoC within the limitations of a low-cost Lattice FPGA.
+- Serve as a learning platform for students and beginners in RISC-V, FPGA, and SoC development.
 
-* * *
+---
 
-##  Work Done So Far
+## 🧩 SoC Architecture
 
-### 1\. Core Optimization
+The SoC consists of the following primary components:
 
-*   Removed: CLINT, PMP, Debug logic
-    
-*   LUT usage reduced from >5k to ~3k
-    
-*   Tried BRAM-based FIFOs (in earlier tests) but skipped them in final SoC
-    
+### 1. **SHAKTI E-Class CPU Core**
+- A 5-stage in-order pipelined processor implementing the **RV32I** instruction set.
+- Sourced from the SHAKTI processor family, which is an open-source initiative by IIT-Madras.
+- Communicates with peripherals via an **AXI4-Lite** interconnect interface.
 
-### 2\. Minimal SoC Build
+### 2. **Instruction Memory (BRAM)**
+- A block RAM preloaded with a compiled binary firmware (`firmware.bin`).
+- Serves as read-only instruction memory for the CPU.
+- No external memory interface is used for simplicity.
 
-*   Used only the CPU core
-    
-*   Added BRAM for instruction memory
-    
-*   Memory-mapped UART at `0x90000000` using AXI4-Lite
-    
-*   Verified UART output from RISC-V firmware
-    
+### 3. **UART Peripheral**
+- A basic memory-mapped UART transmitter.
+- Mapped to address `0x90000000` within the CPU’s address space.
+- Used to print characters serially from the executing firmware.
 
-### 3\. Toolchain
+### 4. **AXI4-Lite Interconnect**
+- A simplified interconnect bus that links the CPU with memory and peripherals.
+- Enables memory-mapped access to UART and instruction memory.
 
-*   Compiled `main.c` using `riscv32-unknown-elf-gcc`
-    
-*   Converted to `firmware.hex` for BRAM
-    
-*   Synthesized on Lattice FPGA (within 30 BRAMs)
-    
+---
 
-* * *
+## 📦 Repository Contents
 
-## 🧠 SoC Block Diagram (Text)
-
-SHAKTI CPU (AXI4 Master)  
-├── BRAM (Instruction Memory)  
-└── AXI4-Lite to UART → UART TX (8N1)
-
-
-
-## 📁 Files
-
-*   `mkeclass_axi4.v` – Top wrapper
-    
-*   `mkeclass.v` – CPU core
-    
-*   `axi4_uart_bridge.v` – UART mapped bridge
-    
-*   `uart_tx.v` – UART TX logic
-    
-*   `bram_1rw.v` – Instruction memory
-    
-*   `main.c` – RISC-V C code
-    
-*   `firmware.hex` – Output for BRAM
-    
-*   `Makefile` – Builds hex from C
-    
-
-* * *
-
-## 🙌 Thanks To
-
-*   SHAKTI team
-    
-*   VSD & Lattice Semiconductor for guidance
