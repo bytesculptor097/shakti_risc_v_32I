@@ -214,6 +214,7 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 - Core sourced from the [SHAKTI Processor Program](https://shakti.org.in/) by IIT‑Madras.   
 - Thanks to the VSDOpen community for FPGA tooling guidance.
+- VSD & Lattice Semiconductor for guidance
 
 ---
 
