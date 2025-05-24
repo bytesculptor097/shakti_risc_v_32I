@@ -206,14 +206,14 @@ This command downloads a full copy of this repository (all files, history, and f
    cd shakti_risc_v_32I/shakthi_basic
    ```
    
-3. Build the FPGA bitstream
+3. **Build the FPGA bitstream**
 
    ```
    make build
    ```
 This command synthesizes your Verilog into a netlist, places & routes it for the target FPGA, and produces the final bitstream (`.bin`) along with intermediate files (e.g. `.json`, `.asc`) in the `build/` directory.
    
-4. Flash the board
+4. **Flash the board**
 
    ```
    make flash
