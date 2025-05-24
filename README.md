@@ -190,6 +190,20 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
+## Reproduction Steps
+
+Follow these steps in order. Each command is in its own code block so it can be copied independently:
+
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/Skandakm29/shakti_risc_v_32I.git
+
+2. **Change into the shakthi_basic directory**
+
+   '''
+   cd shakti_risc_v_32I/shakthi_basic
+   '''
+   
 
 
 ##  Key Features
