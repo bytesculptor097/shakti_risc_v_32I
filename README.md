@@ -200,9 +200,9 @@ Follow these steps in order. Each command is in its own code block so it can be 
 
 2. **Change into the shakthi_basic directory**
 
-   '''
+   ```
    cd shakti_risc_v_32I/shakthi_basic
-   '''
+   ```
    
 
 
