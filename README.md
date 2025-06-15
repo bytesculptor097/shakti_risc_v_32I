@@ -113,7 +113,7 @@ This command downloads a full copy of this repository (all files, history, and f
 2. **Change into the shakthi_basic directory**
 
    ```
-   cd shakti_risc_v_32I/shakthi_basic
+   cd shakti_risc_v_32I/shakthi_basic/verilog_nex
    ```
    
 3. **Build the FPGA bitstream**
