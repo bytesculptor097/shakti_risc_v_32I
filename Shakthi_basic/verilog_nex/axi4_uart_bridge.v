@@ -1,53 +1,43 @@
 module axi4_uart_bridge (
-    input  wire clk,
-    input  wire rst,
+    input  wire        clk,
+    input  wire        rst,
 
-    input  wire [31:0] awaddr,
-    input  wire        awvalid,
-    output wire        awready,
+    // AXI4-Lite Write Interface
+    input  wire        axi_awvalid,
+    input  wire [31:0] axi_awaddr,
+    input  wire        axi_wvalid,
+    input  wire [31:0] axi_wdata,
 
-    input  wire [31:0] wdata,
-    input  wire [3:0]  wstrb,
-    input  wire        wvalid,
-    output wire        wready,
-
-    output reg  [1:0]  bresp,
-    output reg         bvalid,
-    input  wire        bready,
-
-    output wire        uart_tx
+    // UART Interface
+    output wire        uart_tx,
+    output wire        uart_active
 );
 
-    wire do_write = (awaddr == 32'h90000000) && awvalid && wvalid;
-    reg  uart_send = 0;
-    reg  [7:0] uart_data;
-    wire uart_busy;
+    // ===== UART Control =====
+    wire uart_addr_match = (axi_awaddr == 32'h90000000);
+    wire uart_send = axi_awvalid && axi_wvalid && uart_addr_match;
+    wire [7:0] uart_data = axi_wdata[7:0];
 
-    assign awready = 1'b1;
-    assign wready  = 1'b1;
+    // ===== Baud Rate Generator =====
+    reg [10:0] baud_counter = 0;
+    wire baud_tick = (baud_counter == 1250 - 1);  // 9600 baud @12MHz
 
     always @(posedge clk) begin
-        if (rst) begin
-            bvalid <= 0;
-            uart_send <= 0;
-        end else begin
-            if (do_write && !uart_busy) begin
-                uart_data <= wdata[7:0];
-                uart_send <= 1;
-                bvalid <= 1;
-                bresp  <= 2'b00; // OKAY
-            end else begin
-                uart_send <= 0;
-                if (bvalid && bready) bvalid <= 0;
-            end
-        end
+        if (rst) baud_counter <= 0;
+        else if (baud_tick) baud_counter <= 0;
+        else baud_counter <= baud_counter + 1;
     end
 
-    uart_tx_8n1 uart (
+    // ===== UART Transmitter =====
+    uart_tx_minimal u_uart_tx (
         .clk(clk),
-        .txbyte(uart_data),
-        .senddata(uart_send),
-        .tx(uart_tx)
+        .baud_tick(baud_tick),
+        .data(uart_data),
+        .send(uart_send),
+        .tx(uart_tx),
+        .active(uart_active)
     );
 
 endmodule
+
+`default_nettype wire
