@@ -1,11 +1,6 @@
 #  Minimal RISC-V SoC using SHAKTI E-Class Core on Lattice FPGA
 
-This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI E-Class** RISC-V processor core. The goal is to build a lightweight, functional RISC-V SoC suitable for small, resource-constrained FPGAs like the Lattice iCE40UP5K.The Shakti RISC‑V 32I Core on VSD FPGA project brings together two vibrant open‑source ecosystems—India’s SHAKTI processor family and the VSDOpen FPGA community—to create a low‑cost, hands‑on RISC‑V SoC platform. At its heart lies the SHAKTI E‑Class RV32I core, a clean‑slate, five‑stage in‑order pipelined CPU design implementing the full RV32I integer instruction set. By targeting the affordable VSDSquadron FPGA mini board (Lattice iCE40 / Tang Nano 9K), this repository enables students and hobbyists to:  
-1. **Study** a real-world RISC‑V microarchitecture end‑to‑end.  
-2. **Experiment** with instruction memory, AXI4‑Lite interconnects, and a simple UART peripheral.  
-3. **Deploy** compiled firmware on actual hardware, observing live UART output.  
-4. **Extend** the design—adding peripherals, modifying the pipeline, or porting to other FPGA families—all using open‑source tools like Yosys, NextPNR, and Quartus.
-
+This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI E-Class** RISC-V processor core. The goal is to build a lightweight, functional RISC-V SoC suitable for small, resource-constrained FPGAs like the Lattice iCE40UP5K.The Shakti RISC‑V 32I Core on VSD FPGA project brings together two vibrant open‑source ecosystems—India’s SHAKTI processor family and the VSDOpen FPGA community—to create a low‑cost, hands‑on RISC‑V SoC platform. At its heart lies the SHAKTI E‑Class RV32I core, a clean‑slate, five‑stage in‑order pipelined CPU design implementing the full RV32I integer instruction set. 
 
 ---
 
@@ -164,15 +159,6 @@ This command synthesizes your Verilog into a netlist, places & routes it for the
    ```
 This command takes the generated FPGA bitstream (`mkSoc.bin`) from the `build/` directory and programs it onto the connected FPGA board over USB/JTAG, so your design actually runs on the hardware.
    
-##  Key Features
-
--  Lightweight SHAKTI RV32I 5‑stage pipelined core  
--  Memory‑mapped UART for serial I/O  
--  On‑chip BRAM for firmware storage  
--  AXI4‑Lite interconnect  
--  Modular Verilog RTL  
--  Fits low‑cost Lattice FPGA  
-
 ---
 
 ##  Target Platform
