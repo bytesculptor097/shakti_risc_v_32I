@@ -7,7 +7,7 @@ This project implements a **minimal System-on-Chip (SoC)** based on the **SHAKTI
 4. **Extend** the design—adding peripherals, modifying the pipeline, or porting to other FPGA families—all using open‑source tools like Yosys, NextPNR, and Quartus.
 
 
---
+---
 
 
 ##  Project Objective
