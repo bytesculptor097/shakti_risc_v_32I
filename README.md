@@ -63,26 +63,7 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-##  System Components
 
-| Component Name                   | Type                             | Function                                                                                 |
-|----------------------------------|----------------------------------|------------------------------------------------------------------------------------------|
-| **eclass**                       | CPU Core                         | Executes RV32I instructions; interfaces with memory/peripherals via AXI4‑Lite.           |
-| **uart_user_ifc**                | UART (Serial Port)               | Handles serial TX/RX, with FIFOs for buffering.                                         |
-| **fabric (Interconnect)**        | AXI4‑Lite Crossbar               | Routes read/write requests between CPU, memory, and peripherals.                         |
-| **main_mem_master**              | Memory Interface                 | AXI4‑Lite master for main data RAM.                                                     |
-| **boot_mem_master**              | Memory Interface                 | AXI4‑Lite master for boot ROM/flash.                                                     |
-| **err_slave**                    | Error Handler                    | Catches invalid memory accesses (for debugging).                                        |
-| **signature**                    | Simulation Monitor               | Ends simulation when tests complete (`mv_end_simulation`).                              |
-| **clint_s_xactor**               | AXI4‑Lite Transaction Handler    | Manages AXI reads/writes for the CLINT.                                                 |
-| **uart_s_xactor**                | AXI4‑Lite Transaction Handler    | Manages AXI reads/writes for the UART.                                                  |
-| **fabric_xactors_from_masters**  | AXI4‑Lite Master Interfaces      | Buffers requests from CPU masters (instr, data, debug).                                 |
-| **fabric_xactors_to_slaves**     | AXI4‑Lite Slave Interfaces       | Buffers requests to slaves (main mem, boot mem, CLINT, UART, err_slave, signature).     |
-| **fabric_v_f_rd_mis / …_wr**     | Routing FIFOs                    | Track in‑flight AXI read/write transactions.                                             |
-| **uart_baudGen**                 | Baud Rate Generator              | Generates baud clock for UART.                                                          |
-| **uart_fifoRecv / fifoXmit**     | FIFO Buffers                     | Buffers incoming/outgoing UART data.                                                    |
-
----
 
 ##  Design Style Explanation
 
@@ -107,44 +88,6 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 - **Documentation**  
   - Module headers list ports, parameters, brief description.  
   - Inline comments for complex logic.
-
----
-
-##  I/O Signals of `mkSoc`
-
-| Signal Name            | Direction | Width | Meaning                                          | Usage                                                        |
-|------------------------|-----------|:-----:|--------------------------------------------------|--------------------------------------------------------------|
-| **Clock/Reset Signals**                                                      |
-| `CLK_tck_clk`          | in        | 1     | JTAG test clock (unused normally)                | Tie to 0 if unused.                                          |
-| `RST_N_trst`           | in        | 1     | JTAG test reset (unused normally)                | Tie to 0 if unused.                                          |
-| `CLK`                  | in        | 1     | Main system clock                                | Connect to clock source.                                     |
-| `RST_N`                | in        | 1     | Active‑low system reset                          | Assert (low) to reset.                                       |
-| **Dump Interface**                                                           |
-| `EN_io_dump_get`       | in        | 1     | Enable signal to read system state               | Assert to trigger state dump (debug).                        |
-| `io_dump_get`          | out       | 167   | System state data (registers, FIFOs, etc.)       | Capture when `EN_io_dump_get` is asserted.                   |
-| `RDY_io_dump_get`      | out       | 1     | Indicates `io_dump_get` is ready                 | Check before asserting `EN_io_dump_get`.                      |
-| **Main Memory AXI Master**                                                   |
-| `main_mem_master_awvalid` | out    | 1     | AXI write address valid                          | Indicates valid write address.                               |
-| `main_mem_master_awaddr`  | out    | 32    | AXI write address                                | Connect to RAM controller.                                   |
-| `main_mem_master_awprot`  | out    | 3     | AXI write protection                             | Set security/privilege level.                                |
-| `main_mem_master_awsize`  | out    | 3     | AXI write burst size                             | e.g. `2'b011` for 8‑byte bursts.                             |
-| `main_mem_master_wvalid`  | out    | 1     | AXI write data valid                             | Indicates valid write data.                                  |
-| `main_mem_master_wdata`   | out    | 64    | AXI write data                                   | Data to write.                                               |
-| `main_mem_master_wstrb`   | out    | 8     | AXI write strobe                                 | Byte‑enable for `wdata`.                                     |
-| `main_mem_master_bready`  | out    | 1     | AXI write response ready                         | Accept write responses.                                      |
-| `main_mem_master_arvalid` | out    | 1     | AXI read address valid                           | Indicates valid read address.                                |
-| `main_mem_master_araddr`  | out    | 32    | AXI read address                                 | Connect to RAM controller.                                   |
-| `main_mem_master_arprot`  | out    | 3     | AXI read protection                              | Set security/privilege level.                                |
-| `main_mem_master_arsize`  | out    | 3     | AXI read burst size                              | e.g. `2'b011` for 8‑byte bursts.                             |
-| `main_mem_master_rready`  | out    | 1     | AXI read data ready                              | Accept read data.                                            |
-| **Boot Memory AXI Master**                                                   |
-| `boot_mem_master_*`     | out       | —     | AXI signals for boot memory (same as main_mem)   | Connect to ROM/flash controller.                             |
-| **UART**                                                                     |
-| `uart_io_SIN`          | in        | 1     | UART serial input                                | Connect to external RX.                                      |
-| `uart_io_SOUT`         | out       | 1     | UART serial output                               | Connect to external TX.                                      |
-| **Simulation Control**                                                       |
-| `mv_end_simulation`    | out       | 1     | End‑of‑simulation signal                         | Assert when tests complete.                                  |
-| `RDY_mv_end_simulation`| out       | 1     | Indicates `mv_end_simulation` is valid           | Check before reading.                                        |
 
 ---
 
@@ -209,14 +152,15 @@ This command downloads a full copy of this repository (all files, history, and f
 3. **Build the FPGA bitstream**
 
    ```
-   make build
+   make clean
+   make all
    ```
 This command synthesizes your Verilog into a netlist, places & routes it for the target FPGA, and produces the final bitstream (`.bin`) along with intermediate files (e.g. `.json`, `.asc`) in the `build/` directory.
    
 4. **Flash the board**
 
    ```
-   make flash
+   sudo make flash
    ```
 This command takes the generated FPGA bitstream (`mkSoc.bin`) from the `build/` directory and programs it onto the connected FPGA board over USB/JTAG, so your design actually runs on the hardware.
    
