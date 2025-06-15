@@ -58,34 +58,6 @@ By modularizing each function—pipeline stages, ALU, CSR, register file, memory
 
 ---
 
-
-
-##  Design Style Explanation
-
-- **Modular & Hierarchical**  
-  - Each block under `rtl/` (e.g., ALU, CSR, Pipeline, BRAM, FIFO).  
-  - Top‑level `mkSoc.v` instantiates sub‑modules.
-
-- **Synchronous Reset**  
-  - Single active‑low reset (`rst_n_i`), synchronized to `clk_i`.
-
-- **Parameterization**  
-  - Data widths, address widths, FIFO depths are parameters.
-
-- **Signal Naming**  
-  - Inputs: `<name>_i`  
-  - Outputs: `<name>_o`  
-  - Internals: snake_case.
-
-- **Clock‑Domain Crossing**  
-  - Gray‑coded pointers in FIFOs for safe sync.
-
-- **Documentation**  
-  - Module headers list ports, parameters, brief description.  
-  - Inline comments for complex logic.
-
----
-
 ## 🔍 System Block Diagram
 
 ![WhatsApp Image 2025-05-24 at 18 17 38_825da6d7](https://github.com/user-attachments/assets/0027b169-4ba1-4df1-b2c5-42eab3f37c16)
