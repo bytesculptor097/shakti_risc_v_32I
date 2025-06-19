@@ -1,0 +1,43 @@
+`default_nettype none
+
+module uart_tx_minimal (
+    input  wire clk,
+    input  wire baud_tick,
+    input  wire [7:0] data,
+    input  wire send,
+    output reg  tx = 1'b1,
+    output wire active
+);
+
+    reg [3:0] state = 0;
+    reg [7:0] shift_reg;
+
+    assign active = (state != 0);
+
+    always @(posedge clk) begin
+        if (state == 0) begin
+            if (send) begin
+                shift_reg <= data;
+                state <= 1;
+                tx <= 0;  // Start bit
+            end
+        end
+        else if (baud_tick) begin
+            case (state)
+                1: begin tx <= shift_reg[0]; state <= 2; end
+                2: begin tx <= shift_reg[1]; state <= 3; end
+                3: begin tx <= shift_reg[2]; state <= 4; end
+                4: begin tx <= shift_reg[3]; state <= 5; end
+                5: begin tx <= shift_reg[4]; state <= 6; end
+                6: begin tx <= shift_reg[5]; state <= 7; end
+                7: begin tx <= shift_reg[6]; state <= 8; end
+                8: begin tx <= shift_reg[7]; state <= 9; end
+                9: begin tx <= 1'b1; state <= 0; end  // Stop bit
+                default: state <= 0;
+            endcase
+        end
+    end
+
+endmodule
+
+`default_nettype wire
