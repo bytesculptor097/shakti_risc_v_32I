@@ -1,8 +1,0 @@
-BRAM1Load
-FIFO2
-BRAM2BELoad
-mkSoc
-MakeClock
-MakeReset0
-Counter
-SizedFIFO
