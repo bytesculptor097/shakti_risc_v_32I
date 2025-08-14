@@ -21,6 +21,7 @@ module mkeclass_axi4(
     input  wire dmem_wready,
     input  wire dmem_bvalid,
     input  wire [1:0] dmem_bresp,
+    
     input  wire [3:0] dmem_bid,
 
     output wire dmem_arvalid,
